@@ -6,8 +6,8 @@ package gonix
 // #include <nix_api_value.h>
 // #include <nix_api_expr.h>
 /*
-void nixPrimOp_cgo(void * user_data, nix_c_context * context, EvalState * state, Value ** args, Value * ret) {
-	void nixPrimOp(void * user_data, nix_c_context * context, EvalState * state, Value ** args, Value * ret);
+void nixPrimOp_cgo(void * user_data, nix_c_context * context, EvalState * state, nix_value ** args, nix_value * ret) {
+	void nixPrimOp(void * user_data, nix_c_context * context, EvalState * state, nix_value ** args, nix_value * ret);
 	nixPrimOp(user_data, context, state, args, ret);
 }
 void finalizePrimOp_cgo(void * obj, void * cd) {
@@ -29,7 +29,7 @@ type PrimOp struct {
 	cprimop *C.PrimOp
 }
 
-type PrimOpFunc func(ctx *Context, state *State, args ...*Value) *Value
+type PrimOpFunc func(ctx *Context, state *State, args ...Value) Value
 
 type primOpHandle struct {
 	numArgs int
