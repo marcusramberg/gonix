@@ -19,19 +19,18 @@ func finalizePrimOp(obj, cd unsafe.Pointer) {
 }
 
 //export nixPrimOp
-func nixPrimOp(funh unsafe.Pointer, cctx *C.nix_c_context, cstate *C.EvalState, cargs unsafe.Pointer, cret unsafe.Pointer) {
+func nixPrimOp(funh unsafe.Pointer, cctx *C.nix_c_context, cstate *C.EvalState, cargs unsafe.Pointer, cret *C.nix_value) {
 	h := cgo.Handle(funh)
 	poh := h.Value().(primOpHandle)
 
 	ctx := &Context{cctx}
 	state := &State{nil, ctx, cstate}
 
-	args := make([]*Value, poh.numArgs)
+	args := make([]Value, poh.numArgs)
 	for idx := 0; idx < poh.numArgs; idx++ {
-		cargPtr := (*unsafe.Pointer)(unsafe.Pointer(uintptr(cargs) + uintptr(uintptr(idx)*unsafe.Sizeof(cargs))))
-		carg := *cargPtr
+		cargPtr := (*C.nix_value)(unsafe.Pointer(uintptr(cargs) + uintptr(uintptr(idx)*unsafe.Sizeof(cargs))))
 
-		val, err := wrapValue(state, unsafe.Pointer(carg))
+		val, err := wrapValue(state, cargPtr)
 		if err != nil {
 			panic(fmt.Errorf("failed to wrap value during a primop call: %v", err))
 		}
@@ -39,11 +38,11 @@ func nixPrimOp(funh unsafe.Pointer, cctx *C.nix_c_context, cstate *C.EvalState, 
 		if err != nil {
 			panic(fmt.Errorf("failed to force value during a primop call: %v", err))
 		}
-		args[idx] = val
+		args[idx] = *val
 	}
 
 	ret := poh.fun(ctx, state, args...)
-	if ret != nil {
-		C.nix_copy_value(cctx, unsafe.Pointer(cret), ret.cvalue)
+	if ret.cvalue != nil {
+		C.nix_copy_value(cctx, cret, ret.cvalue)
 	}
 }

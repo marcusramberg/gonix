@@ -15,14 +15,14 @@ func ExampleRegisterGlobalPrimOp() {
 		"summer",
 		[]string{"arg0", "arg1", "arg2"},
 		"docs",
-		func(ctx *gonix.Context, state *gonix.State, args ...*gonix.Value) *gonix.Value {
+		func(ctx *gonix.Context, state *gonix.State, args ...gonix.Value) gonix.Value {
 			var sum int64 = 0
 			for _, val := range args {
 				i, _ := val.GetInt()
 				sum += i
 			}
 			r, _ := state.NewInt(sum)
-			return r
+			return *r
 		})
 
 	state := store.NewState(nil)
@@ -43,9 +43,9 @@ func ExampleState_NewPrimOp() {
 		"helloworlder",
 		[]string{"target"},
 		"docs",
-		func(ctx *gonix.Context, state *gonix.State, args ...*gonix.Value) *gonix.Value {
+		func(ctx *gonix.Context, state *gonix.State, args ...gonix.Value) gonix.Value {
 			v, _ := state.NewString(fmt.Sprintf("hello, %s", args[0]))
-			return v
+			return *v
 		})
 	vop, _ := state.NewPrimOp(op)
 

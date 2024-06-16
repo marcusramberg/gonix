@@ -69,7 +69,7 @@ func (s *State) Call(fun, argument *Value) (*Value, error) {
 		return nil, err
 	}
 
-	var carg unsafe.Pointer
+	var carg *C.nix_value
 	if argument != nil {
 		carg = argument.cvalue
 	}

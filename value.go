@@ -12,7 +12,6 @@ import "C"
 
 import (
 	"fmt"
-	"runtime"
 	"runtime/cgo"
 	"unsafe"
 )
@@ -34,16 +33,15 @@ const (
 	NixTypeExternal
 )
 
+type NixValue *C.nix_value
+
 // Value is a wrapper around a nix value.
 type Value struct {
 	state  *State
-	cvalue unsafe.Pointer
+	cvalue NixValue
 }
 
-func wrapValue(state *State, cvalue unsafe.Pointer) (*Value, error) {
-	runtime.SetFinalizer(&cvalue, func(v *unsafe.Pointer) {
-		C.nix_gc_decref(state.context().ccontext, *v)
-	})
+func wrapValue(state *State, cvalue *C.nix_value) (*Value, error) {
 	return &Value{state, cvalue}, nil
 }
 
